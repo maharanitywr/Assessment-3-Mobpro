@@ -1,3 +1,30 @@
 <resources>
-    <string name="app_name">Assessment 3</string>
+    <string name="app_name">Bakso-in</string>
+    <string name="list_kosong">Enak atau tidak?</string>
+    <string name="list_kosong1">Beri review jujurnya!</string>
+    <string name="intro">Isi sesuai dengan pengalaman kamu ya!</string>
+    <string name="x_diklik">%1$s diklik!</string>
+    <string name="tambah_review">Tambah review</string>
+    <string name="nama">Nama tempat</string>
+    <string name="isi_deskripsi">Deskripsi</string>
+    <string name="isi_review">Review</string>
+    <string name="kembali">Kembali</string>
+    <string name="simpan">Simpan</string>
+    <string name="edit_review">Ubah review</string>
+    <string name="invalid">Isian tidak boleh kosong!</string>
+    <string name="lainnya">Opsi lainnya</string>
+    <string name="hapus">Hapus review</string>
+    <string name="pesan_hapus">Hapus review ini?</string>
+    <string name="tombol_hapus">Hapus</string>
+    <string name="tombol_batal">Batal</string>
+    <string name="list">Tampilan list</string>
+    <string name="grid">Tampilan grid</string>
+    <string name="tentang_aplikasi">Tentang aplikasi</string>
+    <string name="bagikan">Bagikan</string>
+    <string name="bagikan_template">Nama tempat: %1$s\nAlamat tempat: %2$s\nReview: %3$s</string>
+    <string name="copyright">Aplikasi yang menampilkan review dari berbagai macam tempat bakso.
+        Berisikan nama tempat, alamat terkait tempat tersebut, review menu bakso yang ada di tempat,
+        rating, dan foto lokasi.\n\nAplikasi ini dibuat untuk Assessment 3.
+        \n\nCopyright 2024 Maharani Tyasworo.\nAll rights reserved.</string>
+    <string name="lokasi">Lokasi</string>
 </resources>
