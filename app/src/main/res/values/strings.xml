@@ -27,4 +27,9 @@
         rating, dan foto lokasi.\n\nAplikasi ini dibuat untuk Assessment 3.
         \n\nCopyright 2024 Maharani Tyasworo.\nAll rights reserved.</string>
     <string name="lokasi">Lokasi</string>
+    <string name="gambar">Gambar</string>
+    <string name="error">Gagal. Koneksi error.</string>
+    <string name="try_again">Coba lagi.</string>
+    <string name="tutup">Tutup</string>
+    <string name="logout">Logout</string>
 </resources>

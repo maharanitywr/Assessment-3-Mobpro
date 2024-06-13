@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.BorderStroke
@@ -43,6 +44,9 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -54,16 +58,29 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.credentials.ClearCredentialStateRequest
+import androidx.credentials.CredentialManager
+import androidx.credentials.CustomCredential
+import androidx.credentials.GetCredentialRequest
+import androidx.credentials.GetCredentialResponse
+import androidx.credentials.exceptions.ClearCredentialException
+import androidx.credentials.exceptions.GetCredentialException
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.google.android.libraries.identity.googleid.GetGoogleIdOption
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
+import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.d3if3086.assessment3.BuildConfig
 import org.d3if3086.assessment3.R
 import org.d3if3086.assessment3.database.BaksoDb
 import org.d3if3086.assessment3.model.Bakso
+import org.d3if3086.assessment3.model.User
 import org.d3if3086.assessment3.navigation.Screen
+import org.d3if3086.assessment3.network.UserDataStore
 import org.d3if3086.assessment3.ui.theme.Assessment3Theme
 import org.d3if3086.assessment3.util.SettingsDataStore
 import org.d3if3086.assessment3.util.ViewModelFactory
@@ -88,8 +105,13 @@ class MainActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(navController: NavHostController) {
+    val context = LocalContext.current
     val dataStore = SettingsDataStore(LocalContext.current)
+    val dataStoreUser = UserDataStore(context)
+    val user by dataStoreUser.userFlow.collectAsState(User())
     val showList by dataStore.layoutFlow.collectAsState(true)
+
+    var showDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -121,7 +143,11 @@ fun MainScreen(navController: NavHostController) {
                         )
                     }
                     IconButton(onClick = {
-
+                        if (user.email.isEmpty()) {
+                            CoroutineScope(Dispatchers.IO).launch { signIn(context, dataStoreUser) }
+                        } else {
+                            showDialog = true
+                        }
                     }) {
                         Icon(
                             painter = painterResource(R.drawable.account_circle),
@@ -171,6 +197,14 @@ fun MainScreen(navController: NavHostController) {
     ) { paddingValues ->
         ScreenContent(showList, Modifier.padding(paddingValues), navController)
 
+        if (showDialog) {
+            ProfilDialog(
+                user = user,
+                onDismissRequest = { showDialog = false }) {
+                CoroutineScope(Dispatchers.IO).launch { signOut(context, dataStoreUser) }
+                showDialog = false
+            }
+        }
     }
 }
 
@@ -225,6 +259,57 @@ fun ScreenContent(showList: Boolean, modifier: Modifier, navController: NavHostC
         }
     }
 }
+
+private suspend fun signIn(context: Context, dataStore: UserDataStore) {
+    val googleIdOption: GetGoogleIdOption = GetGoogleIdOption.Builder()
+        .setFilterByAuthorizedAccounts(false)
+        .setServerClientId(BuildConfig.API_KEY)
+        .build()
+
+    val request: GetCredentialRequest = GetCredentialRequest.Builder()
+        .addCredentialOption(googleIdOption)
+        .build()
+
+    try {
+        val credentialManager = CredentialManager.create(context)
+        val result = credentialManager.getCredential(context, request)
+        handleSignIn(result, dataStore)
+    } catch (e: GetCredentialException) {
+        Log.e("SIGN-IN", "Error: ${e.errorMessage}")
+    }
+}
+
+private suspend fun handleSignIn(result: GetCredentialResponse, dataStore: UserDataStore) {
+    val credential = result.credential
+    if (credential is CustomCredential &&
+        credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
+    ) {
+        try {
+            val googleId = GoogleIdTokenCredential.createFrom(credential.data)
+            val nama = googleId.displayName ?: ""
+            val email = googleId.id
+            val photoUrl = googleId.profilePictureUri.toString()
+            dataStore.saveData(User(nama, email, photoUrl))
+        } catch (e: GoogleIdTokenParsingException) {
+            Log.e("SIGN-IN", "Error: ${e.message}")
+        }
+    } else {
+        Log.e("SIGN-IN", "Error: unrecognized custom credential type.")
+    }
+}
+
+private suspend fun signOut(context: Context, dataStore: UserDataStore) {
+    try {
+        val credentialManager = CredentialManager.create(context)
+        credentialManager.clearCredentialState(
+            ClearCredentialStateRequest()
+        )
+        dataStore.saveData(User())
+    } catch (e: ClearCredentialException) {
+        Log.e("SIGN-IN", "Error: ${e.errorMessage}")
+    }
+}
+
 
 @Composable
 fun ListItem(bakso: Bakso, onClick: () -> Unit) {
