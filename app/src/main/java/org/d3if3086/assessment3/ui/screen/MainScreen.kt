@@ -310,7 +310,6 @@ private suspend fun signOut(context: Context, dataStore: UserDataStore) {
     }
 }
 
-
 @Composable
 fun ListItem(bakso: Bakso, onClick: () -> Unit) {
     val context = LocalContext.current
