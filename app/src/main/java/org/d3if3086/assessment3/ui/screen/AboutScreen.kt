@@ -7,7 +7,6 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -50,13 +49,15 @@ fun AboutScreen(navController: NavHostController) {
             )
         }
     ) { paddingValues ->
-        Text(text = stringResource(R.string.copyright),
+        Text(
+            text = stringResource(R.string.copyright),
             modifier = Modifier
                 .padding(paddingValues)
                 .padding(16.dp)
         )
     }
 }
+
 @Preview(showBackground = true)
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true)
 @Composable

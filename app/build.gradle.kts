@@ -77,6 +77,7 @@ dependencies {
     implementation("com.squareup.moshi:moshi-kotlin:1.9.3")
     implementation("androidx.room:room-runtime:2.6.1")
     implementation("androidx.room:room-ktx:2.6.1")
+    implementation("com.vanniktech:android-image-cropper:4.5.0")
     implementation("io.coil-kt:coil-compose:2.4.0")
     ksp("androidx.room:room-compiler:2.6.1")
     implementation("androidx.datastore:datastore-preferences:1.1.1")
